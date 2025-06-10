@@ -1,1 +1,48 @@
+def unify(term1, term2, substitutions=None):
+    """
+    Unify two terms with given substitutions.
+    term1 and term2 can be atoms, variables, or functions.
+    """
+    if substitutions is None:
+        substitutions = {}
+
+    # Case 1: Both terms are identical (no unification needed)
+    if term1 == term2:
+        return substitutions
+
+    # Case 2: term1 is a variable
+    if isinstance(term1, str) and term1.islower():  # Variable is lowercase
+        return unify_variable(term1, term2, substitutions)
+
+    # Case 3: term2 is a variable
+    if isinstance(term2, str) and term2.islower():  # Variable is lowercase
+        return unify_variable(term2, term1, substitutions)
+
+    # Case 4: Both terms are functions (or predicates)
+    if isinstance(term1, tuple) and isinstance(term2, tuple):
+        return unify(term1[1:], term2[1:], unify(term1[0], term2[0], substitutions))
+
+    # Case 5: Terms are not unifiable (atomic terms differ)
+    return None
+
+
+def unify_variable(var, term, substitutions):
+    """Helper function for unifying a variable with a term."""
+    if var in substitutions:
+        return unify(substitutions[var], term, substitutions)
+    if isinstance(term, str) and term.islower():  # term is a variable
+        if term == var:
+            return substitutions
+        else:
+            return None
+    substitutions[var] = term
+    return substitutions
+
+
+# Example usage
+term1 = ('f', 'X', 'Y')  # f(X, Y)
+term2 = ('f', 'a', 'b')  # f(a, b)
+
+substitutions = unify(term1, term2)
+print("Substitutions:", substitutions)
 
