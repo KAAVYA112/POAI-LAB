@@ -1,1 +1,66 @@
+# Min-Max Algorithm for Decision Making
+
+def min_max(depth, node, is_maximizing_player, alpha, beta):
+    """
+    Minimax Algorithm with Alpha-Beta Pruning.
+    
+    depth: Current depth in the game tree.
+    node: Current node in the game tree.
+    is_maximizing_player: Boolean representing if it's the maximizing player's turn.
+    alpha: The best value that the maximizing player can guarantee so far.
+    beta: The best value that the minimizing player can guarantee so far.
+    
+    Returns the optimal value for the player making the move.
+    """
+    # Base case: If we reached the end of the game or max depth, return the heuristic value of the node
+    if depth == 0 or is_terminal(node):
+        return evaluate(node)
+    
+    if is_maximizing_player:
+        max_eval = float('-inf')
+        # Loop through child nodes (possible moves)
+        for child in generate_children(node):
+            eval = min_max(depth-1, child, False, alpha, beta)
+            max_eval = max(max_eval, eval)
+            alpha = max(alpha, eval)
+            if beta <= alpha:
+                break  # Beta cut-off
+        return max_eval
+    else:
+        min_eval = float('inf')
+        # Loop through child nodes (possible moves)
+        for child in generate_children(node):
+            eval = min_max(depth-1, child, True, alpha, beta)
+            min_eval = min(min_eval, eval)
+            beta = min(beta, eval)
+            if beta <= alpha:
+                break  # Alpha cut-off
+        return min_eval
+
+def is_terminal(node):
+    """Returns True if the node is a terminal node (game over or end state)."""
+    # Placeholder function: you can define it based on the game logic
+    return node in ['X_WINS', 'O_WINS', 'DRAW']
+
+def evaluate(node):
+    """Evaluate the heuristic value of a node."""
+    # Placeholder: Evaluates the current state (e.g., in tic-tac-toe, it might return +1, -1, or 0)
+    if node == 'X_WINS':
+        return 10
+    elif node == 'O_WINS':
+        return -10
+    else:
+        return 0
+
+def generate_children(node):
+    """Generates all possible child nodes (moves)."""
+    # Placeholder: generates the possible moves from the current node
+    # This would depend on the specific game being modeled (e.g., tic-tac-toe, chess, etc.)
+    return ['X_WINS', 'O_WINS', 'DRAW']
+
+# Example usage:
+initial_node = 'START'  # This could be the initial game state
+depth = 3  # Search depth
+result = min_max(depth, initial_node, True, float('-inf'), float('inf'))
+print("Best move score:", result)
 
