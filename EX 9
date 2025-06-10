@@ -1,0 +1,87 @@
+from collections import deque
+
+class BlocksWorld:
+    def __init__(self, initial, goal):
+        self.initial = initial  # Initial state (list of stacks)
+        self.goal = goal  # Goal state (list of stacks)
+
+    def is_goal(self, state):
+        """Check if the current state matches the goal state."""
+        return state == self.goal
+
+    def get_possible_actions(self, state):
+        """Generate all possible actions (moves) from a given state."""
+        actions = []
+        # Iterate over all blocks in the state
+        for i in range(len(state)):
+            for j in range(len(state)):
+                if i != j and state[i]:  # If there are blocks in stack i
+                    block_to_move = state[i][-1]  # The block to move
+                    # Pick up block from stack i, move it to stack j (or table)
+                    if not state[j] or state[j][-1] != block_to_move:
+                        actions.append((block_to_move, i, j))
+        return actions
+
+    def apply_action(self, state, action):
+        """Apply a given action to the state and return the new state."""
+        block, from_stack, to_stack = action
+        new_state = [stack.copy() for stack in state]  # Deep copy of the state
+        
+        # Remove block from the 'from_stack'
+        new_state[from_stack].remove(block)
+        
+        # If 'to_stack' is empty, place block on the table
+        if not new_state[to_stack]:
+            new_state[to_stack].append(block)
+        else:
+            # Otherwise, stack block on the top of the 'to_stack'
+            new_state[to_stack].append(block)
+
+        return new_state
+
+    def bfs(self):
+        """Breadth-first search to find the solution."""
+        visited = set()  # To keep track of visited states
+        queue = deque([(self.initial, [])])  # Queue for BFS with (state, path)
+
+        while queue:
+            current_state, path = queue.popleft()
+            
+            # Check if the current state is the goal
+            if self.is_goal(current_state):
+                return path  # Return the sequence of actions to the goal
+
+            # Mark the state as visited
+            visited.add(tuple(map(tuple, current_state)))
+
+            # Generate possible actions
+            possible_actions = self.get_possible_actions(current_state)
+            
+            # Explore each action
+            for action in possible_actions:
+                new_state = self.apply_action(current_state, action)
+                
+                # If the new state has not been visited, add to queue
+                if tuple(map(tuple, new_state)) not in visited:
+                    queue.append((new_state, path + [action]))
+
+        return None  # No solution found
+
+# Example of Blocks World problem
+initial_state = [['A'], ['B', 'C']]
+goal_state = [['A'], ['C'], ['B']]
+
+# Create the BlocksWorld object
+bw = BlocksWorld(initial_state, goal_state)
+
+# Solve the problem using BFS
+solution = bw.bfs()
+
+# Display the solution (sequence of actions)
+if solution:
+    print("Solution found:")
+    for action in solution:
+        block, from_stack, to_stack = action
+        print(f"Move block {block} from stack {from_stack} to stack {to_stack}")
+else:
+    print("No solution found.")
