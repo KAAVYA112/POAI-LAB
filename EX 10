@@ -1,0 +1,33 @@
+import numpy as np
+import skfuzzy as fuzz
+from skfuzzy import control as ctrl
+import matplotlib.pyplot as plt
+
+# Step 1: Create fuzzy variables (input and output)
+temperature = ctrl.Antecedent(np.arange(0, 41, 1), 'temperature')  # Temperature in degrees Celsius
+heater = ctrl.Consequent(np.arange(0, 11, 1), 'heater')  # Heater setting from 0 to 10
+
+# Step 2: Define fuzzy membership functions
+# For temperature: low, medium, high
+temperature['low'] = fuzz.trimf(temperature.universe, [0, 0, 20])
+temperature['medium'] = fuzz.trimf(temperature.universe, [10, 20, 30])
+temperature['high'] = fuzz.trimf(temperature.universe, [20, 40, 40])
+
+# For heater: low, medium, high
+heater['low'] = fuzz.trimf(heater.universe, [0, 0, 5])
+heater['medium'] = fuzz.trimf(heater.universe, [3, 5, 7])
+heater['high'] = fuzz.trimf(heater.universe, [5, 10, 10])
+
+# Step 3: Define fuzzy rules
+rule1 = ctrl.Rule(temperature['low'], heater['high'])
+rule2 = ctrl.Rule(temperature['medium'], heater['medium'])
+rule3 = ctrl.Rule(temperature['high'], heater['low'])
+
+# Step 4: Create and simulate the control system
+heater_ctrl = ctrl.ControlSystem([rule1, rule2, rule3])
+heater_simulation = ctrl.ControlSystemSimulation(heater_ctrl)
+
+# Step 5: Set input value (e.g., temperature = 18)
+heater_simulation.input['temperature'] = 18
+
+# Step 6: Com
