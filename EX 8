@@ -1,0 +1,43 @@
+class ForwardChaining:
+    def __init__(self, facts, rules):
+        self.facts = set(facts)  # Known facts
+        self.rules = rules  # List of rules (each rule is a tuple of condition and conclusion)
+    
+    def apply_rule(self, rule):
+        """Apply a rule to the current facts to derive new facts."""
+        condition, conclusion = rule
+        if condition.issubset(self.facts):  # Check if all conditions are met
+            if conclusion not in self.facts:
+                self.facts.add(conclusion)  # Add the conclusion to the facts
+                return True
+        return False
+    
+    def forward_chaining(self):
+        """Perform forward chaining to derive new facts."""
+        new_facts = True
+        while new_facts:
+            new_facts = False
+            for rule in self.rules:
+                if self.apply_rule(rule):
+                    print(f"Derived new fact: {rule[1]}")  # Print the derived fact
+                    new_facts = True
+        return self.facts
+
+# Knowledge base
+facts = {"fever", "cough"}  # Initial facts: the person has a fever and a cough
+
+# Rules
+rules = [
+    ({"fever", "cough"}, "cold"),
+    ({"sore throat", "cough"}, "flu"),
+    ({"fever", "body aches", "fatigue"}, "COVID-19")
+]
+
+# Create a ForwardChaining object with initial facts and rules
+fc = ForwardChaining(facts, rules)
+
+# Perform forward chaining to derive new facts
+final_facts = fc.forward_chaining()
+
+# Final facts
+print("\nFinal Facts:", final_facts)
